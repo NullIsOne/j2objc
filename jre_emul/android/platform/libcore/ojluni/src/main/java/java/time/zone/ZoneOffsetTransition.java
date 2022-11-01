@@ -103,10 +103,10 @@ public final class ZoneOffsetTransition
      * Serialization version.
      */
     private static final long serialVersionUID = -6946044323557704546L;
-    /**
-     * The local transition date-time at the transition.
-     */
-    private final LocalDateTime transition;
+  /** The transition epoch-second. */
+  private final long epochSecond;
+  /** The local transition date-time at the transition. */
+  private final LocalDateTime transition;
     /**
      * The offset before transition.
      */
@@ -152,6 +152,8 @@ public final class ZoneOffsetTransition
      * @param offsetAfter  the offset at and after the transition, not null
      */
     ZoneOffsetTransition(LocalDateTime transition, ZoneOffset offsetBefore, ZoneOffset offsetAfter) {
+    assert transition.getNano() == 0;
+    this.epochSecond = transition.toEpochSecond(offsetBefore);
         this.transition = transition;
         this.offsetBefore = offsetBefore;
         this.offsetAfter = offsetAfter;
@@ -165,6 +167,7 @@ public final class ZoneOffsetTransition
      * @param offsetAfter  the offset at and after the transition, not null
      */
     ZoneOffsetTransition(long epochSecond, ZoneOffset offsetBefore, ZoneOffset offsetAfter) {
+    this.epochSecond = epochSecond;
         this.transition = LocalDateTime.ofEpochSecond(epochSecond, 0, offsetBefore);
         this.offsetBefore = offsetBefore;
         this.offsetAfter = offsetAfter;
@@ -209,7 +212,7 @@ public final class ZoneOffsetTransition
      * @throws IOException if an error occurs
      */
     void writeExternal(DataOutput out) throws IOException {
-        Ser.writeEpochSec(toEpochSecond(), out);
+    Ser.writeEpochSec(epochSecond, out);
         Ser.writeOffset(offsetBefore, out);
         Ser.writeOffset(offsetAfter, out);
     }
@@ -244,7 +247,7 @@ public final class ZoneOffsetTransition
      * @return the transition instant, not null
      */
     public Instant getInstant() {
-        return transition.toInstant(offsetBefore);
+    return Instant.ofEpochSecond(epochSecond);
     }
 
     /**
@@ -253,7 +256,7 @@ public final class ZoneOffsetTransition
      * @return the transition epoch second
      */
     public long toEpochSecond() {
-        return transition.toEpochSecond(offsetBefore);
+    return epochSecond;
     }
 
     //-------------------------------------------------------------------------
@@ -380,7 +383,9 @@ public final class ZoneOffsetTransition
      */
     List<ZoneOffset> getValidOffsets() {
         if (isGap()) {
-            return Collections.emptyList();
+      // Per Android 13 version it returns List.of(), but the method is doing the same thing, so we
+      // keep the original version.
+      return Collections.emptyList();
         }
         return Arrays.asList(getOffsetBefore(), getOffsetAfter());
     }
@@ -397,7 +402,7 @@ public final class ZoneOffsetTransition
      */
     @Override
     public int compareTo(ZoneOffsetTransition transition) {
-        return this.getInstant().compareTo(transition.getInstant());
+    return Long.compare(epochSecond, transition.epochSecond);
     }
 
     //-----------------------------------------------------------------------
@@ -416,8 +421,9 @@ public final class ZoneOffsetTransition
         }
         if (other instanceof ZoneOffsetTransition) {
             ZoneOffsetTransition d = (ZoneOffsetTransition) other;
-            return transition.equals(d.transition) &&
-                offsetBefore.equals(d.offsetBefore) && offsetAfter.equals(d.offsetAfter);
+      return epochSecond == d.epochSecond
+          && offsetBefore.equals(d.offsetBefore)
+          && offsetAfter.equals(d.offsetAfter);
         }
         return false;
     }

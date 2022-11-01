@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2016, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -61,17 +61,12 @@
  */
 package java.time.zone;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.NavigableMap;
 import java.util.Objects;
-import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,50 +75,42 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provider of time-zone rules to the system.
- * <p>
- * This class manages the configuration of time-zone rules.
- * The static methods provide the public API that can be used to manage the providers.
- * The abstract methods provide the SPI that allows rules to be provided.
- * <p>
- * ZoneRulesProvider may be installed in an instance of the Java Platform as
- * extension classes, that is, jar files placed into any of the usual extension
- * directories. Installed providers are loaded using the service-provider loading
- * facility defined by the {@link ServiceLoader} class. A ZoneRulesProvider
- * identifies itself with a provider configuration file named
- * {@code java.time.zone.ZoneRulesProvider} in the resource directory
- * {@code META-INF/services}. The file should contain a line that specifies the
- * fully qualified concrete zonerules-provider class name.
- * Providers may also be made available by adding them to the class path or by
- * registering themselves via {@link #registerProvider} method.
- * <p>
- * The Java virtual machine has a default provider that provides zone rules
- * for the time-zones defined by IANA Time Zone Database (TZDB). If the system
- * property {@code java.time.zone.DefaultZoneRulesProvider} is defined then
- * it is taken to be the fully-qualified name of a concrete ZoneRulesProvider
- * class to be loaded as the default provider, using the system class loader.
- * If this system property is not defined, a system-default provider will be
- * loaded to serve as the default provider.
- * <p>
- * Rules are looked up primarily by zone ID, as used by {@link ZoneId}.
- * Only zone region IDs may be used, zone offset IDs are not used here.
- * <p>
- * Time-zone rules are political, thus the data can change at any time.
- * Each provider will provide the latest rules for each zone ID, but they
- * may also provide the history of how the rules changed.
  *
- * @implSpec
- * This interface is a service provider that can be called by multiple threads.
- * Implementations must be immutable and thread-safe.
- * <p>
- * Providers must ensure that once a rule has been seen by the application, the
- * rule must continue to be available.
- * <p>
-*  Providers are encouraged to implement a meaningful {@code toString} method.
- * <p>
- * Many systems would like to update time-zone rules dynamically without stopping the JVM.
- * When examined in detail, this is a complex problem.
- * Providers may choose to handle dynamic updates, however the default provider does not.
+ * <p>This class manages the configuration of time-zone rules. The static methods provide the public
+ * API that can be used to manage the providers. The abstract methods provide the SPI that allows
+ * rules to be provided.
  *
+ * <p>ZoneRulesProvider may be installed in an instance of the Java Platform as extension classes,
+ * that is, jar files placed into any of the usual extension directories. Installed providers are
+ * loaded using the service-provider loading facility defined by the {@link ServiceLoader} class. A
+ * ZoneRulesProvider identifies itself with a provider configuration file named {@code
+ * java.time.zone.ZoneRulesProvider} in the resource directory {@code META-INF/services}. The file
+ * should contain a line that specifies the fully qualified concrete zonerules-provider class name.
+ * Providers may also be made available by adding them to the class path or by registering
+ * themselves via {@link #registerProvider} method.
+ *
+ * <p>The Java virtual machine has a default provider that provides zone rules for the time-zones
+ * defined by IANA Time Zone Database (TZDB). If the system property {@code
+ * java.time.zone.DefaultZoneRulesProvider} is defined then it is taken to be the fully-qualified
+ * name of a concrete ZoneRulesProvider class to be loaded as the default provider, using the system
+ * class loader. If this system property is not defined, a system-default provider will be loaded to
+ * serve as the default provider.
+ *
+ * <p>Rules are looked up primarily by zone ID, as used by {@link ZoneId}. Only zone region IDs may
+ * be used, zone offset IDs are not used here.
+ *
+ * <p>Time-zone rules are political, thus the data can change at any time. Each provider will
+ * provide the latest rules for each zone ID, but they may also provide the history of how the rules
+ * changed.
+ *
+ * @implSpec This interface is a service provider that can be called by multiple threads.
+ *     Implementations must be immutable and thread-safe.
+ *     <p>Providers must ensure that once a rule has been seen by the application, the rule must
+ *     continue to be available.
+ *     <p>Providers are encouraged to implement a meaningful {@code toString} method.
+ *     <p>Many systems would like to update time-zone rules dynamically without stopping the JVM.
+ *     When examined in detail, this is a complex problem. Providers may choose to handle dynamic
+ *     updates, however the default provider does not.
  * @since 1.8
  */
 public abstract class ZoneRulesProvider {
@@ -137,22 +124,76 @@ public abstract class ZoneRulesProvider {
      */
     private static final ConcurrentMap<String, ZoneRulesProvider> ZONES = new ConcurrentHashMap<>(512, 0.75f, 2);
 
-    static {
-        // Android-changed: use a single hard-coded provider.
-        ZoneRulesProvider provider = new IcuZoneRulesProvider();
-        registerProvider(provider);
-    }
+  /** The zone ID data */
+  private static volatile Set<String> ZONE_IDS;
 
-    //-------------------------------------------------------------------------
-    /**
-     * Gets the set of available zone IDs.
-     * <p>
-     * These IDs are the string form of a {@link ZoneId}.
-     *
-     * @return a modifiable copy of the set of zone IDs, not null
+    static {
+    // BEGIN Android-changed: use a single hard-coded provider.
+    /*
+    // if the property java.time.zone.DefaultZoneRulesProvider is
+    // set then its value is the class name of the default provider
+    final List<ZoneRulesProvider> loaded = new ArrayList<>();
+    AccessController.doPrivileged(new PrivilegedAction<>() {
+        public Object run() {
+            String prop = System.getProperty("java.time.zone.DefaultZoneRulesProvider");
+            if (prop != null) {
+                try {
+                    Class<?> c = Class.forName(prop, true, ClassLoader.getSystemClassLoader());
+                    @SuppressWarnings("deprecation")
+                    ZoneRulesProvider provider = ZoneRulesProvider.class.cast(c.newInstance());
+                    registerProvider(provider);
+                    loaded.add(provider);
+                } catch (Exception x) {
+                    throw new Error(x);
+                }
+            } else {
+                registerProvider(new TzdbZoneRulesProvider());
+            }
+            return null;
+        }
+    });
+
+    ServiceLoader<ZoneRulesProvider> sl = ServiceLoader.load(ZoneRulesProvider.class, ClassLoader.getSystemClassLoader());
+    Iterator<ZoneRulesProvider> it = sl.iterator();
+    while (it.hasNext()) {
+        ZoneRulesProvider provider;
+        try {
+            provider = it.next();
+        } catch (ServiceConfigurationError ex) {
+            if (ex.getCause() instanceof SecurityException) {
+                continue;  // ignore the security exception, try the next provider
+            }
+            throw ex;
+        }
+        boolean found = false;
+        for (ZoneRulesProvider p : loaded) {
+            if (p.getClass() == provider.getClass()) {
+                found = true;
+            }
+        }
+        if (!found) {
+            registerProvider0(provider);
+            loaded.add(provider);
+        }
+    }
+    // CopyOnWriteList could be slow if lots of providers and each added individually
+    PROVIDERS.addAll(loaded);
      */
-    public static Set<String> getAvailableZoneIds() {
-        return new HashSet<>(ZONES.keySet());
+    ZoneRulesProvider provider = new IcuZoneRulesProvider();
+    registerProvider(provider);
+    // END Android-changed: use a single hard-coded provider.
+  }
+
+  // -------------------------------------------------------------------------
+  /**
+   * Gets the set of available zone IDs.
+   *
+   * <p>These IDs are the string form of a {@link ZoneId}.
+   *
+   * @return the unmodifiable set of zone IDs, not null
+   */
+  public static Set<String> getAvailableZoneIds() {
+    return ZONE_IDS;
     }
 
     /**
@@ -252,13 +293,13 @@ public abstract class ZoneRulesProvider {
         PROVIDERS.add(provider);
     }
 
-    /**
-     * Registers the provider.
-     *
-     * @param provider  the provider to register, not null
-     * @throws ZoneRulesException if unable to complete the registration
-     */
-    private static void registerProvider0(ZoneRulesProvider provider) {
+  /**
+   * Registers the provider.
+   *
+   * @param provider the provider to register, not null
+   * @throws ZoneRulesException if unable to complete the registration
+   */
+  private static synchronized void registerProvider0(ZoneRulesProvider provider) {
         for (String zoneId : provider.provideZoneIds()) {
             Objects.requireNonNull(zoneId, "zoneId");
             ZoneRulesProvider old = ZONES.putIfAbsent(zoneId, provider);
@@ -268,6 +309,8 @@ public abstract class ZoneRulesProvider {
                     ", currently loading from provider: " + provider);
             }
         }
+    Set<String> combinedSet = new HashSet<String>(ZONES.keySet());
+    ZONE_IDS = Collections.unmodifiableSet(combinedSet);
     }
 
     /**

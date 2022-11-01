@@ -2090,6 +2090,7 @@ JAVA_PUBLIC_SOURCES_ICU = \
   android/icu/util/Currency.java \
   android/icu/util/CurrencyAmount.java \
   android/icu/util/ExtendedCalendar.java \
+  android/icu/util/ExtendedTimeZone.java \
   android/icu/util/Freezable.java \
   android/icu/util/GregorianCalendar.java \
   android/icu/util/HebrewCalendar.java \
