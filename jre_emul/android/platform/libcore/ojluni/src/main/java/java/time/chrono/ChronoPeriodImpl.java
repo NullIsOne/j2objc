@@ -77,8 +77,6 @@ import java.time.temporal.TemporalQueries;
 import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -102,11 +100,8 @@ final class ChronoPeriodImpl
      */
     private static final long serialVersionUID = 57387258289L;
 
-    /**
-     * The set of supported units.
-     */
-    private static final List<TemporalUnit> SUPPORTED_UNITS =
-            Collections.unmodifiableList(Arrays.<TemporalUnit>asList(YEARS, MONTHS, DAYS));
+  /** The set of supported units. */
+  private static final List<TemporalUnit> SUPPORTED_UNITS = List.of(YEARS, MONTHS, DAYS);
 
     /**
      * The chronology.
@@ -201,11 +196,16 @@ final class ChronoPeriodImpl
     private ChronoPeriodImpl validateAmount(TemporalAmount amount) {
         Objects.requireNonNull(amount, "amount");
         if (amount instanceof ChronoPeriodImpl == false) {
-            throw new DateTimeException("Unable to obtain ChronoPeriod from TemporalAmount: " + amount.getClass());
+      throw new DateTimeException(
+          "Unable to obtain ChronoPeriod from TemporalAmount: " + amount.getClass());
         }
         ChronoPeriodImpl period = (ChronoPeriodImpl) amount;
         if (chrono.equals(period.getChronology()) == false) {
-            throw new ClassCastException("Chronology mismatch, expected: " + chrono.getId() + ", actual: " + period.getChronology().getId());
+      throw new ClassCastException(
+          "Chronology mismatch, expected: "
+              + chrono.getId()
+              + ", actual: "
+              + period.getChronology().getId());
         }
         return period;
     }
@@ -311,7 +311,11 @@ final class ChronoPeriodImpl
         Objects.requireNonNull(temporal, "temporal");
         Chronology temporalChrono = temporal.query(TemporalQueries.chronology());
         if (temporalChrono != null && chrono.equals(temporalChrono) == false) {
-            throw new DateTimeException("Chronology mismatch, expected: " + chrono.getId() + ", actual: " + temporalChrono.getId());
+      throw new DateTimeException(
+          "Chronology mismatch, expected: "
+              + chrono.getId()
+              + ", actual: "
+              + temporalChrono.getId());
         }
     }
 
