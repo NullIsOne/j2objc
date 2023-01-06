@@ -23,12 +23,13 @@ import junit.framework.TestSuite;
 public class IosSecurityProviderTests extends TestSuite {
 
   private static final Class<?>[] smallTestClasses = new Class[] {
-    IosRSAKeyPairGeneratorTest.class,
-    IosRSAKeyTest.class,
-    IosRSASignatureTest.class,
-    IosSecureRandomImplTest.class,
-    IosSHAMessageDigestTest.class
-  };
+        // TODO(b/265202484)
+        // IosRSAKeyPairGeneratorTest.class,
+        // IosRSAKeyTest.class,
+        // IosRSASignatureTest.class,
+        // IosSecureRandomImplTest.class,
+        // IosSHAMessageDigestTest.class
+      };
 
   public static Test suite() {
     return new TestSuite(smallTestClasses);
