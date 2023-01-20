@@ -2063,7 +2063,6 @@ JAVA_PUBLIC_SOURCES_ICU = \
   android/icu/text/DecimalFormat.java \
   android/icu/text/DecimalFormatSymbols.java \
   android/icu/text/DisplayContext.java \
-  android/icu/text/ExtendedDateFormatSymbols.java \
   android/icu/text/LocaleDisplayNames.java \
   android/icu/text/MessageFormat.java \
   android/icu/text/MessagePattern.java \
@@ -2089,7 +2088,6 @@ JAVA_PUBLIC_SOURCES_ICU = \
   android/icu/util/Calendar.java \
   android/icu/util/Currency.java \
   android/icu/util/CurrencyAmount.java \
-  android/icu/util/ExtendedCalendar.java \
   android/icu/util/Freezable.java \
   android/icu/util/GregorianCalendar.java \
   android/icu/util/HebrewCalendar.java \
@@ -2260,6 +2258,13 @@ JAVA_PRIVATE_SOURCES_ICU = \
   android/icu/util/VTimeZone.java \
   java/text/IcuIteratorWrapper.java \
 
+JAVA_PUBLIC_SOURCES_ICU_LIBCORE_BRIDGE = \
+  com/android/icu/util/ExtendedTimeZone.java \
+  com/android/icu/util/ExtendedCalendar.java \
+  com/android/icu/text/ExtendedDateFormatSymbols.java \
+
+JAVA_PRIVATE_SOURCES_ICU_LIBCORE_BRIDGE =
+
 NATIVE_JRE_ICU_EMBEDDED_DATA = ICUData.m
 
 # These sources are not included in any sub-library, only the full jre_emul.
@@ -2305,6 +2310,7 @@ JAVA_SOURCES_SQL = $(JAVA_PUBLIC_SOURCES_SQL) $(JAVA_PRIVATE_SOURCES_SQL)
 JAVA_SOURCES_BEANS = $(JAVA_PUBLIC_SOURCES_BEANS) $(JAVA_PRIVATE_SOURCES_BEANS)
 JAVA_SOURCES_TIME = $(JAVA_PUBLIC_SOURCES_TIME) $(JAVA_PRIVATE_SOURCES_TIME)
 JAVA_SOURCES_ICU = $(JAVA_PUBLIC_SOURCES_ICU) $(JAVA_PRIVATE_SOURCES_ICU)
+JAVA_SOURCES_ICU_LIBCORE_BRIDGE = $(JAVA_PUBLIC_SOURCES_LIBCORE_BRIDGE) $(JAVA_PRIVATE_SOURCES_LIBCORE_BRIDGE)
 JAVA_SOURCES_JSON = $(JSON_PUBLIC_SOURCES) $(JSON_PRIVATE_SOURCES)
 
 # These annotations have a SOURCE retention, and so should not be part of the runtime.
@@ -2501,6 +2507,7 @@ JAVA_PUBLIC_SOURCES_JRE = \
   $(JAVA_PUBLIC_SOURCES_BEANS) \
   $(JAVA_PUBLIC_SOURCES_TIME) \
   $(JAVA_PUBLIC_SOURCES_ICU) \
+  $(JAVA_PUBLIC_SOURCES_ICU_LIBCORE_BRIDGE) \
   $(JAVA_PUBLIC_SOURCES_OTHER)
 JAVA_PRIVATE_SOURCES = \
   $(JAVA_PRIVATE_SOURCES_CORE) \
@@ -2518,6 +2525,7 @@ JAVA_PRIVATE_SOURCES = \
   $(JAVA_PRIVATE_SOURCES_BEANS) \
   $(JAVA_PRIVATE_SOURCES_TIME) \
   $(JAVA_PRIVATE_SOURCES_ICU) \
+  $(JAVA_PRIVATE_SOURCES_ICU_LIBCORE_BRIDGE) \
   $(JAVA_PRIVATE_SOURCES_OTHER)
 
 JAVA_PUBLIC_SOURCES = $(JAVA_PUBLIC_SOURCES_JRE) \

@@ -81,7 +81,7 @@ SQL_OBJS_RELATIVE = $(call srcs_to_objs,$(JAVA_SOURCES_SQL))
 BEANS_OBJS_RELATIVE = $(call srcs_to_objs,$(JAVA_SOURCES_BEANS))
 TIME_OBJS_RELATIVE = $(call srcs_to_objs,$(JAVA_SOURCES_TIME))
 ICU_OBJS_RELATIVE = \
-    $(call srcs_to_objs,$(JAVA_SOURCES_ICU) $(NATIVE_JRE_ICU_EMBEDDED_DATA))
+    $(call srcs_to_objs,$(JAVA_SOURCES_ICU) $(NATIVE_JRE_ICU_EMBEDDED_DATA) $(JAVA_SOURCES_ICU_LIBCORE_BRIDGE))
 JSON_OBJS_RELATIVE = $(call srcs_to_objs,$(JAVA_SOURCES_JSON))
 JRE_OBJS_RELATIVE = $(call srcs_to_objs,$(JAVA_SOURCES) $(NATIVE_JRE_SOURCES))
 
@@ -245,6 +245,7 @@ OBJC_SOURCES_MANIFESTS := \
   $(call objc_manifest,objc_sources_beans,$(JAVA_SOURCES_BEANS)) \
   $(call objc_manifest,objc_sources_time,$(JAVA_SOURCES_TIME)) \
   $(call objc_manifest,objc_sources_icu,$(JAVA_SOURCES_ICU)) \
+	$(call objc_manifest,objc_sources_icu,$(JAVA_SOURCES_ICU_LIBCORE_BRIDGE)) \
   $(call objc_manifest,objc_sources_other,$(JAVA_SOURCES_OTHER)) \
   $(call objc_manifest,objc_sources_android,$(JAVA_SOURCES_ANDROID))
 
