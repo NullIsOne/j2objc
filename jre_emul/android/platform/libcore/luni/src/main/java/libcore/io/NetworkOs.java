@@ -60,10 +60,8 @@ static inline BOOL throwIfClosed(JavaIoFileDescriptor *fd) {
   return_type _rc = -1; \
   do { \
     int _fd = [java_fd getInt$]; \
-    id _monitor = \
         LibcoreIoAsynchronousCloseMonitor_newAsynchronousSocketCloseMonitorWithInt_(_fd); \
     _rc = syscall_name(_fd, __VA_ARGS__); \
-    _monitor = nil; \
     if (_rc == -1) { \
       throwIfClosed(fd); \
       if (errno != EINTR) { \

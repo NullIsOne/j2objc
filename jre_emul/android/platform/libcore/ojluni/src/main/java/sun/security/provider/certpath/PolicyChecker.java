@@ -676,7 +676,6 @@ class PolicyChecker extends PKIXCertPathChecker {
             foundMatch = true;
             String curParPolicy = curParent.getValidPolicy();
 
-            PolicyNodeImpl curNode = null;
             Set<String> curExpPols = null;
 
             if (curPolicy.equals(ANY_POLICY)) {
@@ -701,18 +700,10 @@ class PolicyChecker extends PKIXCertPathChecker {
 
                     Set<String> expPols = new HashSet<>();
                     expPols.add(curParExpPol);
-
-                    curNode = new PolicyNodeImpl
-                        (curParent, curParExpPol, pQuals,
-                         policiesCritical, expPols, false);
                 }
             } else {
                 curExpPols = new HashSet<String>();
                 curExpPols.add(curPolicy);
-
-                curNode = new PolicyNodeImpl
-                    (curParent, curPolicy, pQuals,
-                     policiesCritical, curExpPols, false);
             }
         }
 

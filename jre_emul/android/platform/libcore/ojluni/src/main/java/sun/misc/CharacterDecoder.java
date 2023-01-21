@@ -150,7 +150,6 @@ public abstract class CharacterDecoder {
      */
     public void decodeBuffer(InputStream aStream, OutputStream bStream) throws IOException {
         int     i;
-        int     totalBytes = 0;
 
         PushbackInputStream ps = new PushbackInputStream (aStream);
         decodeBufferPrefix(ps, bStream);
@@ -161,14 +160,11 @@ public abstract class CharacterDecoder {
                 length = decodeLinePrefix(ps, bStream);
                 for (i = 0; (i+bytesPerAtom()) < length; i += bytesPerAtom()) {
                     decodeAtom(ps, bStream, bytesPerAtom());
-                    totalBytes += bytesPerAtom();
                 }
                 if ((i + bytesPerAtom()) == length) {
                     decodeAtom(ps, bStream, bytesPerAtom());
-                    totalBytes += bytesPerAtom();
                 } else {
                     decodeAtom(ps, bStream, length - i);
-                    totalBytes += (length - i);
                 }
                 decodeLineSuffix(ps, bStream);
             } catch (CEStreamExhausted e) {

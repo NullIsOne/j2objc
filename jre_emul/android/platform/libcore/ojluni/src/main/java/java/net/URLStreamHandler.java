@@ -132,8 +132,6 @@ public abstract class URLStreamHandler {
         // This field has already been parsed
         String ref = u.getRef();
 
-        boolean isRelPath = false;
-        boolean queryOnly = false;
         // BEGIN Android-changed
         boolean querySet = false;
         // END Android-changed
@@ -142,7 +140,6 @@ public abstract class URLStreamHandler {
         // Strip off the query part
         if (start < limit) {
             int queryStart = spec.indexOf('?');
-            queryOnly = queryStart == start;
             if ((queryStart != -1) && (queryStart < limit)) {
                 query = spec.substring(queryStart+1, limit);
                 if (limit > queryStart)
@@ -269,7 +266,6 @@ public abstract class URLStreamHandler {
             if (spec.charAt(start) == '/') {
                 path = spec.substring(start, limit);
             } else if (path != null && path.length() > 0) {
-                isRelPath = true;
                 int ind = path.lastIndexOf('/');
                 String seperator = "";
                 if (ind == -1 && authority != null)
@@ -294,7 +290,6 @@ public abstract class URLStreamHandler {
             path = "";
 
         // BEGIN Android-changed
-        //if (isRelPath) {
         if (true) {
         // END Android-changed
             // Remove embedded /./

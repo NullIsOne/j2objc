@@ -733,42 +733,35 @@ Java_sun_nio_ch_Net_pollconnValue(JNIEnv *env, jclass this)
 jint
 handleSocketErrorWithDefault(JNIEnv *env, jint errorValue, const char *defaultException)
 {
-    const char *xn;
     NSString *msg = @"NioSocketError";
     switch (errorValue) {
         case EINPROGRESS:       /* Non-blocking connect */
             return 0;
 #ifdef EPROTO
         case EPROTO:
-            xn = JNU_JAVANETPKG "ProtocolException";
             J2ObjCThrowByName(JavaNetProtocolException, msg);
             break;
 #endif
         case ECONNREFUSED:
-            xn = JNU_JAVANETPKG "ConnectException";
             J2ObjCThrowByName(JavaNetConnectException, msg);
             break;
         case ETIMEDOUT:
-            xn = JNU_JAVANETPKG "ConnectException";
             J2ObjCThrowByName(JavaNetConnectException, msg);
             break;
         case EHOSTUNREACH:
-            xn = JNU_JAVANETPKG "NoRouteToHostException";
             J2ObjCThrowByName(JavaNetNoRouteToHostException, msg);
             break;
         case EADDRINUSE:  /* Fall through */
         case EADDRNOTAVAIL:
-            xn = JNU_JAVANETPKG "BindException";
             J2ObjCThrowByName(JavaNetBindException, msg);
             break;
         default:
-            xn = defaultException;
             J2ObjCThrowByName(JavaNetSocketException, msg);
             break;
     }
     errno = errorValue;
     // TODO(zgao): Revert this change after JNU_ThrowByNameWithLastError() is implemented.
-    // JNU_ThrowByNameWithLastError(env, xn, "NioSocketError");
+    // JNU_ThrowByNameWithLastError(env, "NioSocketError");
     J2ObjCThrowByName(JavaNetSocketException, msg);
     return IOS_THROWN;
 }

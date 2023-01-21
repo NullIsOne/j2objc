@@ -3201,7 +3201,6 @@ public class DecimalFormat extends NumberFormat {
         // occupied by phase 1.  This is used during the processing of the
         // second pattern (the one representing negative numbers) to ensure
         // that no deviation exists in phase 1 between the two patterns.
-        int phaseOneStart = 0;
         int phaseOneLength = 0;
 
         int start = 0;
@@ -3255,9 +3254,6 @@ public class DecimalFormat extends NumberFormat {
                             ch == groupingSeparator ||
                             ch == decimalSeparator) {
                             phase = 1;
-                            if (j == 1) {
-                                phaseOneStart = pos;
-                            }
                             --pos; // Reprocess this character
                             continue;
                         } else if (ch == CURRENCY_SIGN) {

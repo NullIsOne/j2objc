@@ -1302,17 +1302,20 @@ public final class Subject implements java.io.Serializable {
         public void clear() {
             final Iterator<E> e = iterator();
             while (e.hasNext()) {
-                E next;
-                if (which != Subject.PRIV_CREDENTIAL_SET) {
-                    next = e.next();
-                } else {
-                    next = java.security.AccessController.doPrivileged
-                        (new java.security.PrivilegedAction<E>() {
-                        public E run() {
-                            return e.next();
-                        }
-                    });
-                }
+                // commented because of issue `variable 'next' set but not used`
+                // commented and not deleted because I didn't get what is going on here x)
+                //
+                // E next;
+                // if (which != Subject.PRIV_CREDENTIAL_SET) {
+                //     next = e.next();
+                // } else {
+                //     next = java.security.AccessController.doPrivileged
+                //         (new java.security.PrivilegedAction<E>() {
+                //         public E run() {
+                //             return e.next();
+                //         }
+                //     });
+                // }
                 e.remove();
             }
         }
