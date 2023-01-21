@@ -32,6 +32,7 @@ package java.lang;
 #import "java/lang/ArrayIndexOutOfBoundsException.h"
 #import "java/lang/ArrayStoreException.h"
 #import "java/lang/IllegalArgumentException.h"
+#import "java/lang/Long.h"
 #import "java/lang/NullPointerException.h"
 #import "java/util/Collections.h"
 #import "jvm.h"
@@ -124,7 +125,7 @@ public class System {
   ]-*/;
 
   public static native int identityHashCode(Object anObject) /*-[
-    return (int) (intptr_t) anObject;
+    return JavaLangLong_hashCodeWithLong_((jlong)(intptr_t)anObject);
   ]-*/;
 
   public static native void arraycopy(Object src, int srcPos, Object dest, int destPos,
