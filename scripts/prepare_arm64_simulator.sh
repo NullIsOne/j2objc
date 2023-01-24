@@ -11,7 +11,6 @@ function prepareResultFolders {
   mkdir -p "$1"
   mkdir -p "$1/device"
   mkdir -p "$1/simulator"
-  mkdir -p "$1/fat"
 }
 
 function cleanUp {
@@ -62,10 +61,11 @@ set -e
 
 main_lib=$1
 framework_name=$2
+start_path=$3
 
-libs_path=$main_lib/build_result
-temp_path=$main_lib/temp
-output_path=$main_lib/libs_patched
+libs_path=$start_path/build_result
+temp_path=$start_path/temp
+output_path=$start_path/libs_patched
 
 prepareTempFolders $temp_path
 prepareResultFolders $output_path
